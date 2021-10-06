@@ -1,49 +1,106 @@
-/**
- * Layout component that queries for data
- * with Gatsby's useStaticQuery component
- *
- * See: https://www.gatsbyjs.com/docs/use-static-query/
- */
+import React from 'react'
+import PropTypes from 'prop-types'
+import Helmet from 'react-helmet'
+import { StaticQuery, graphql } from 'gatsby'
 
-import * as React from "react"
-import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
-
-import Header from "./header"
-import "../styles/index.scss"
-
-const Layout = ({ children }) => {
-  const data = useStaticQuery(graphql`
-    query SiteTitleQuery {
-      site {
-        siteMetadata {
-          title
-        }
-      }
-    }
-  `)
-
+function SEO({
+  author,
+  description,
+  lang,
+  meta,
+  keywords,
+  title,
+  url,
+  pathname,
+}) {
   return (
-    <>
-      <Header siteTitle={data.site.siteMetadata?.title || `Title`} />
-      <div className="container" id="content">
-        <main>{children}</main>
-        <footer
-          style={{
-            marginTop: `2rem`,
-          }}
-        >
-          © {new Date().getFullYear()}, Built with
-          {` `}
-          <a href="https://www.gatsbyjs.com">Gatsby</a>
-        </footer>
-      </div>
-    </>
+    <StaticQuery
+      query={detailsQuery}
+      render={data => {
+        return (
+          <Helmet
+            htmlAttributes={{
+              lang,
+            }}
+            title={title}
+            titleTemplate={`%s | ${data.site.siteMetadata.title}`}
+            meta={[
+              {
+                name: 'description',
+                content: description,
+              },
+              {
+                property: 'og:title',
+                content: title,
+              },
+              {
+                property: 'og:description',
+                content: description,
+              },
+              {
+                property: 'og:type',
+                content: 'website',
+              },
+              {
+                property: 'og:url',
+                content: pathname ? url + pathname : url,
+              },
+              {
+                name: 'twitter:card',
+                content: 'summary',
+              },
+              {
+                name: 'twitter:creator',
+                content: author,
+              },
+              {
+                name: 'twitter:title',
+                content: title,
+              },
+              {
+                name: 'twitter:description',
+                content: description,
+              },
+            ]
+              .concat(
+                keywords.length > 0
+                  ? {
+                      name: 'keywords',
+                      content: keywords.join(', '),
+                    }
+                  : []
+              )
+              .concat(meta)}
+          />
+        )
+      }}
+    />
   )
 }
 
-Layout.propTypes = {
-  children: PropTypes.node.isRequired,
+SEO.defaultProps = {
+  lang: 'en',
+  meta: [],
+  keywords: [],
 }
 
-export default Layout
+SEO.propTypes = {
+  description: PropTypes.string,
+  lang: PropTypes.string,
+  meta: PropTypes.array,
+  keywords: PropTypes.arrayOf(PropTypes.string),
+  title: PropTypes.string.isRequired,
+}
+
+export default SEO
+
+export const detailsQuery = graphql`
+  query DefaultSEOQuery {
+    site {
+      siteMetadata {
+        title
+        description
+      }
+    }
+  }
+`
